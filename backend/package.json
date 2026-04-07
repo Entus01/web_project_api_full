@@ -1,14 +1,14 @@
 {
-  "name": "web_project_around_express",
+  "name": "web_project_api_full",
   "version": "1.0.0",
-  "description": "A website built with Express.js as part of a web development project. The project includes features such as routing, middleware, and template rendering to create a dynamic and interactive web application.",
-  "homepage": "https://github.com/Entus01/web_project_around_express#readme",
+  "description": "web project for a full website",
+  "homepage": "https://github.com/Entus01/web_project_api_full#readme",
   "bugs": {
-    "url": "https://github.com/Entus01/web_project_around_express/issues"
+    "url": "https://github.com/Entus01/web_project_api_full/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Entus01/web_project_around_express.git"
+    "url": "git+https://github.com/Entus01/web_project_api_full.git"
   },
   "license": "ISC",
   "author": "Miguel Santiago Barrera",
