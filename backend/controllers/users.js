@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -70,5 +71,31 @@ module.exports.updateAvatar = (req, res) => {
     })
     .catch((err) =>
       res.status(500).json({ message: "Error al actualizar el avatar" }),
+    );
+};
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+  const { JWT_SECRET } = process.env;
+  User.findOne({ email }).select("+password")
+    .then((user) => {
+      if (!user) {
+        return res.status(401).json({ message: "Credenciales inválidas" });
+      }
+      return bcrypt.compare(password, user.password).then((isMatch) => {
+        if (!isMatch) {
+          return res.status(401).json({ message: "Credenciales inválidas" });
+        }
+        const token = jwt.sign(
+          { _id: user._id },
+          JWT_SECRET,
+          { expiresIn: "7d" },
+        );
+
+        return res.status(200).json({ token });
+      });
+    })
+    .catch((err) =>
+      res.status(500).json({ message: "Error al iniciar sesión" }),
     );
 };
