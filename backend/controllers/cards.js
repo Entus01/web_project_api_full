@@ -22,7 +22,7 @@ module.exports.createCard = (req, res) => {
   console.log(req.user._id);
   const { name, link, owner } = req.body;
 
-  const User = requiure("../models/user");
+  const User = require("../models/user");
   User.findById(owner)
     .then((user) => {
       if (!user) {

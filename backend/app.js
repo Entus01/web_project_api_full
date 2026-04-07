@@ -9,6 +9,14 @@ app.use(express.json());
 
 mongoose.connect("mongodb://localhost:27017/aroundb");
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: "69b739517ef1d1fa611fc7f3"
+  };
+
+  next();
+});
+
 const usersRouter = require("./routes/users");
 const cardsRouter = require("./routes/cards");
 
@@ -18,14 +26,6 @@ app.use("/cards", cardsRouter);
 app.use((req, res) => {
   res.status(404).json({ message: "Recurso solicitado no encontrado" });
 });
-
-app.use((req, res) => {
-  req.user = {
-    _id: "69b739517ef1d1fa611fc7f3"
-  };
-
-  next();
-})
 
 fs.readFile(
   path.join(__dirname, "data", "users.json"),
