@@ -4,6 +4,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const { PORT = 3000 } = process.env;
 const app = express();
+const { login, createUser } = require("./controllers/users");
 
 app.use(express.json());
 
@@ -16,6 +17,9 @@ app.use((req, res, next) => {
 
   next();
 });
+
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 const usersRouter = require("./routes/users");
 const cardsRouter = require("./routes/cards");
