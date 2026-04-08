@@ -11,7 +11,7 @@ module.exports.getUsers = (req, res) => {
     })
     .then((users) => res.status(200).json(users))
     .catch((err) =>
-      res.status(500).json({ message: "Error al obtener los usuarios" }),
+      res.status(err.statusCode || 500).json({ message: err.message }),
     );
 };
 
@@ -30,7 +30,7 @@ module.exports.getUserById = (req, res) => {
       res.status(200).json(user);
     })
     .catch((err) =>
-      res.status(err.statusCode).json({ message: err.message }),
+      res.status(err.statusCode || 500).json({ message: err.message }),
     );
 };
 
@@ -40,12 +40,11 @@ module.exports.createUser = (req, res) => {
     .then((hash) => User.create({ name, about, avatar, email, password: hash }))
     .then((user) => res.status(201).json(user))
     .catch((err) =>
-      res.status(500).json({ message: "Error al crear el usuario" }),
+      res.status(err.statusCode || 500).json({ message: err.message }),
     );
 };
 
 module.exports.updateUser = (req, res) => {
-  console.log(req.user._id);
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
@@ -55,12 +54,11 @@ module.exports.updateUser = (req, res) => {
       res.status(200).json(user);
     })
     .catch((err) =>
-      res.status(500).json({ message: "Error al actualizar el usuario" }),
+      res.status(err.statusCode || 500).json({ message: err.message }),
     );
 };
 
 module.exports.updateAvatar = (req, res) => {
-  console.log(req.user._id);
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
@@ -70,33 +68,20 @@ module.exports.updateAvatar = (req, res) => {
       res.status(200).json(user);
     })
     .catch((err) =>
-      res.status(500).json({ message: "Error al actualizar el avatar" }),
+      res.status(err.statusCode || 500).json({ message: err.message }),
     );
 };
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
   const { JWT_SECRET } = process.env;
-  User.findOne({ email }).select("+password")
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!user) {
-        return res.status(401).json({ message: "Credenciales inválidas" });
-      }
-      return bcrypt.compare(password, user.password).then((isMatch) => {
-        if (!isMatch) {
-          return res.status(401).json({ message: "Credenciales inválidas" });
-        }
-        const token = jwt.sign(
-          { _id: user._id },
-          JWT_SECRET,
-          { expiresIn: "7d" },
-        );
-
-        return res.status(200).json({ token });
-      });
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
+      res.status(200).json({ token });
     })
     .catch((err) =>
-      res.status(500).json({ message: "Error al iniciar sesión" }),
+      res.status(401).json({ message: "Error de autenticación" }),
     );
 };
 
@@ -109,6 +94,6 @@ module.exports.getCurrentUser = (req, res) => {
     })
     .then((user) => res.status(200).json(user))
     .catch((err) =>
-      res.status(err.statusCode).json({ message: err.message }),
+      res.status(err.statusCode || 500).json({ message: err.message }),
     );
 };

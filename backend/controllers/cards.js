@@ -19,8 +19,8 @@ module.exports.getCards = (req, res) => {
 };
 
 module.exports.createCard = (req, res) => {
-  console.log(req.user._id);
-  const { name, link, owner } = req.body;
+  const { name, link } = req.body;
+  const owner = req.user._id;
 
   const User = require("../models/user");
   User.findById(owner)
@@ -42,7 +42,6 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  console.log(req.user._id);
   const { id } = req.params;
   Card.findById(id)
     .orFail(() => {
@@ -66,7 +65,6 @@ module.exports.deleteCard = (req, res) => {
 };
 
 module.exports.likeCard = (req, res) => {
-  console.log(req.user._id);
   const { id } = req.params;
   Card.findByIdAndUpdate(
     id,
@@ -90,7 +88,6 @@ module.exports.likeCard = (req, res) => {
 };
 
 module.exports.dislikeCard = (req, res) => {
-  console.log(req.user._id);
   const { id } = req.params;
   Card.findByIdAndUpdate(id, { $pull: { likes: req.user._id } }, { new: true })
     .orFail(() => {
