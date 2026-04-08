@@ -1,0 +1,12 @@
+.page__content {
+  background-color: black;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media screen and (max-width: 720px) {
+  .page__content {
+    padding: 0 20px;
+  }
+}

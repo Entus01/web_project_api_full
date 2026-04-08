@@ -45,12 +45,16 @@ userSchema.statics.findUserByCredentials = function(email, password) {
   return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Usuario no encontrado'));
+        const error = new Error('Credenciales inválidas');
+        error.statusCode = 401;
+        return Promise.reject(error);
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new Error('Usuario no encontrado'));
+            const error = new Error('Credenciales inválidas');
+            error.statusCode = 401;
+            return Promise.reject(error);
           }
           return user;
         });

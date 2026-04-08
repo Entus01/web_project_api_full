@@ -1,0 +1,51 @@
+.popup {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.popup__container {
+  position: relative;
+  width: 430px;
+  min-height: 330px;
+  background-color: #fff;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup__close-button {
+  position: absolute;
+  top: -48.28px;
+  right: -48.28px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: transparent url(../images/close.svg) no-repeat center;
+  background-size: contain;
+}
+
+.popup__close-button:hover {
+  opacity: 0.6;
+}
+
+.popup__info-image {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 24px;
+}
+
+.popup__info-message {
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 18px;
+    color: #000;
+    text-align: center;
+}

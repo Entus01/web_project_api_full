@@ -75,14 +75,20 @@ module.exports.updateAvatar = (req, res) => {
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
   const { JWT_SECRET } = process.env;
+  if (!JWT_SECRET) {
+    return res.status(500).json({ message: "Error de configuración del servidor" });
+  }
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
-      res.status(200).json({ token });
+      return res.status(200).json({ token });
     })
-    .catch((err) =>
-      res.status(401).json({ message: "Error de autenticación" }),
-    );
+    .catch((err) => {
+      if (err.statusCode === 401) {
+        return res.status(401).json({ message: err.message });
+      }
+      return res.status(500).json({ message: "Error del servidor" });
+    });
 };
 
 module.exports.getCurrentUser = (req, res) => {
