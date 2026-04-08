@@ -44,7 +44,7 @@ module.exports.createCard = (req, res) => {
 module.exports.deleteCard = (req, res) => {
   console.log(req.user._id);
   const { id } = req.params;
-  Card.findByIdAndDelete(id)
+  Card.findById(id)
     .orFail(() => {
       const error = new Error("Tarjeta no encontrada");
       error.statusCode = 404;
@@ -54,7 +54,11 @@ module.exports.deleteCard = (req, res) => {
       if (!card) {
         return res.status(404).json({ message: "Tarjeta no encontrada" });
       }
-      res.status(200).json({ message: "Tarjeta eliminada" });
+      if (card.owner.toString() !== req.user._id) {
+        return res.status(403).json({ message: "No tienes permiso para eliminar esta tarjeta" });
+      }
+      return Card.findByIdAndDelete(id)
+        .then(() => res.status(200).json({ message: "Tarjeta eliminada" }));
     })
     .catch((err) =>
       res.status(500).json({ message: "Error al eliminar la tarjeta" }),

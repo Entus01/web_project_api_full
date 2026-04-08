@@ -99,3 +99,16 @@ module.exports.login = (req, res) => {
       res.status(500).json({ message: "Error al iniciar sesión" }),
     );
 };
+
+module.exports.getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .orFail(() => {
+      const error = new Error("Usuario no encontrado");
+      error.statusCode = 404;
+      throw error;
+    })
+    .then((user) => res.status(200).json(user))
+    .catch((err) =>
+      res.status(err.statusCode).json({ message: err.message }),
+    );
+};
