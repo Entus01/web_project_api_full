@@ -19,12 +19,13 @@ function App() {
 
   useEffect(() => {
     const token = localStorage.getItem("jwt");
+
     if (token) {
       auth
         .validateToken(token)
         .then((data) => {
           setIsLoggedIn(true);
-          setCurrentUser(data.data);
+          setCurrentUser(data);
           return Promise.all([api.getUserInfo(), api.getInitialCards()]);
         })
         .then(([userInfo, initialCards]) => {
