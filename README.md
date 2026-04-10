@@ -83,6 +83,7 @@ Paso siguiente: validar params y bodies de estas rutas con celebrate para evitar
 - [x] app.js ya protege las rutas de /users y /cards usando el middleware auth.
 - [x] /signin y /signup quedan fuera de la proteccion.
 - [x] Las rutas protegidas ya distinguen entre 401 cuando faltan credenciales y 403 cuando el token no autoriza el acceso.
+- [x] El middleware auth ya pasa los errores 401 y 403 mediante next(err) al manejador centralizado en lugar de responder directamente.
 
 Resultado actual: completado.
 
@@ -128,11 +129,12 @@ Paso siguiente: crear valores por entorno (desarrollo/produccion) para VITE_API_
 
 - [x] Ya existe un middleware centralizado de errores en app.js (errorHandler).
 - [x] Los controladores principales ya propagan errores con next(err) para que se resuelvan en un solo punto.
-- [~] No esta configurada la regla no-unused-vars para ignorar next en el middleware de errores.
+- [x] La regla no-unused-vars ya esta configurada en .eslintrc para ignorar el parametro next.
+- [x] El middleware auth ya usa next(err) para 401 y 403, por lo que todos los errores pasan por errorHandler.
 
-Resultado actual: parcial.
+Resultado actual: completado.
 
-Paso siguiente: ajustar .eslintrc para contemplar next y revisar que no queden controladores respondiendo errores fuera del middleware central.
+Paso siguiente: verificar que no quede ninguna respuesta de error directa fuera del middleware central.
 
 ### 2. Validar solicitudes
 
