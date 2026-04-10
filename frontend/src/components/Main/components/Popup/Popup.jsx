@@ -1,9 +1,15 @@
 export default function Popup(props) {
 
   const { onClose, title, children } = props;
-  
+
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (  
-    <div className="popup">
+    <div className="popup" onClick={handleOverlayClick}>
       <div className={`popup__content ${!title ? 'popup__content_content_image' : ''}`}>
         <button
           aria-label="Close modal"
