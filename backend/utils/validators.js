@@ -1,6 +1,20 @@
 const { celebrate, Joi, Segments } = require('celebrate');
+const validator = require('validator');
 
 const objectIdPattern = /^[0-9a-fA-F]{24}$/;
+
+const validateUrl = (value, helpers) => {
+  if (
+    !validator.isURL(value, {
+      protocols: ['http', 'https'],
+      require_protocol: true,
+    })
+  ) {
+    return helpers.message('URL must be valid and include http or https');
+  }
+
+  return value;
+};
 
 const validateSignIn = celebrate({
   [Segments.BODY]: Joi.object().keys({
@@ -13,7 +27,7 @@ const validateSignUp = celebrate({
   [Segments.BODY]: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().uri({ scheme: ['http', 'https'] }),
+    avatar: Joi.string().custom(validateUrl),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(6),
   }),
@@ -34,14 +48,14 @@ const validateUpdateUser = celebrate({
 
 const validateUpdateAvatar = celebrate({
   [Segments.BODY]: Joi.object().keys({
-    avatar: Joi.string().required().uri({ scheme: ['http', 'https'] }),
+    avatar: Joi.string().required().custom(validateUrl),
   }),
 });
 
 const validateCreateCard = celebrate({
   [Segments.BODY]: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().uri({ scheme: ['http', 'https'] }),
+    link: Joi.string().required().custom(validateUrl),
   }),
 });
 
