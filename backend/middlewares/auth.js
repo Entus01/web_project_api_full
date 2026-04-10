@@ -1,17 +1,23 @@
 const jwt = require('jsonwebtoken');
 const { getJwtSecret } = require('../utils/jwt');
 
+const createError = (statusCode, message) => {
+  const err = new Error(message);
+  err.statusCode = statusCode;
+  return err;
+};
+
 module.exports.auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return res.status(401).send({ message: 'Autorización requerida' });
+    return next(createError(401, 'Autorización requerida'));
   }
 
   const token = authorization.replace('Bearer ', '');
 
   if (!token) {
-    return res.status(401).send({ message: 'Autorización requerida' });
+    return next(createError(401, 'Autorización requerida'));
   }
 
   let payload;
@@ -19,11 +25,11 @@ module.exports.auth = (req, res, next) => {
   try {
     payload = jwt.verify(token, getJwtSecret());
   } catch (err) {
-    return res.status(403).send({ message: 'Acceso prohibido' });
+    return next(createError(403, 'Acceso prohibido'));
   }
 
   if (!payload || !payload._id) {
-    return res.status(403).send({ message: 'Acceso prohibido' });
+    return next(createError(403, 'Acceso prohibido'));
   }
 
   req.user = payload;
