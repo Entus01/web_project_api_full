@@ -41,7 +41,11 @@ export default function SignUp(props) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button className="sign-up__button" type="submit">
+        <button
+          className="sign-up__button"
+          type="submit"
+          disabled={!email.trim() || !password.trim()}
+        >
           Regístrate
         </button>
       </form>

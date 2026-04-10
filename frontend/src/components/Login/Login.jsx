@@ -34,7 +34,11 @@ export default function SignIn({ handleSignIn }) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
-                <button className="sign-in__button" type="submit">Inicia sesión</button>
+                <button
+                    className="sign-in__button"
+                    type="submit"
+                    disabled={!email.trim() || !password.trim()}
+                >Inicia sesión</button>
             </form>
             <Link className="sign-in__link" to="/signup">¿Aún no eres miembro? Regístrate aquí</Link>
                     {errorMessage && <p className="sign-in__error">{errorMessage}</p>}
