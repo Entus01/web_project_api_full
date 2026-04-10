@@ -10,7 +10,7 @@ Guia paso a paso para completar el proyecto, siguiendo el orden exacto de los re
 
 ## Estado general auditado
 
-El repositorio ya tiene separadas las carpetas backend/ y frontend/, existe autenticacion base con JWT, el modelo de usuario ya incluye email y password, y el frontend ya implementa registro, login y consumo de rutas protegidas con token en los headers. Aun faltan validaciones de entrada, manejo centralizado de errores, logs, CORS, configuracion de produccion, correccion de rutas protegidas del backend y despliegue.
+El repositorio ya tiene separadas las carpetas backend/ y frontend/, existe autenticacion base con JWT, el modelo de usuario ya incluye email y password, el frontend ya implementa registro, login y consumo de rutas protegidas con token en los headers, y CORS ya esta habilitado en el backend. Aun faltan validaciones de entrada, manejo centralizado de errores, registro real de solicitudes y errores, configuracion de produccion, correccion de rutas protegidas del backend y despliegue.
 
 ## Parte I. Autorizacion y registro de usuarios
 
@@ -40,11 +40,11 @@ Resultado actual: completado.
 - [x] El JWT ya incluye solo la propiedad _id.
 - [x] El token ya expira en 7 dias.
 - [x] Si las credenciales fallan, ya responde con 401.
-- [~] En desarrollo no hay clave secreta por defecto; hoy depende de JWT_SECRET y falla con 500 si la variable no existe.
+- [x] En desarrollo ya existe una clave secreta por defecto cuando process.env.NODE_ENV !== 'production'.
 
-Resultado actual: parcial.
+Resultado actual: completado.
 
-Paso siguiente: agregar una clave por defecto para desarrollo cuando process.env.NODE_ENV !== 'production'.
+Paso siguiente: mantener JWT_SECRET obligatorio en produccion y moverlo a .env en el servidor.
 
 ### 4. Crear una ruta para el inicio de sesion y el registro
 
@@ -60,33 +60,33 @@ Paso siguiente: mantener estas dos rutas publicas fuera del router protegido y v
 - [x] Ya existe un middleware en middlewares/auth.js.
 - [x] El middleware lee el token desde Authorization con formato Bearer.
 - [x] Cuando el token es valido, asigna req.user = payload y llama a next().
-- [~] Cuando el token es invalido responde 403, pero en este paso del enunciado se pide 401.
-- [~] Igual que en login, falta una clave por defecto para desarrollo.
+- [x] Cuando falta el header Authorization o el token esta mal formado, el middleware responde con 401.
+- [x] El middleware base ya gestiona el rechazo de accesos no autenticados.
+- [x] El middleware ya usa la misma clave por defecto de desarrollo cuando process.env.NODE_ENV !== 'production'.
 
-Resultado actual: parcial.
+Resultado actual: completado.
 
-Paso siguiente: unificar el comportamiento del middleware con la especificacion del proyecto y con la futura configuracion por entorno.
+Paso siguiente: en el paso 7 se refina este middleware para distinguir entre autenticacion fallida y acceso prohibido segun el caso.
 
 ### 6. Anadir un controlador y una ruta para obtener los datos del usuario
 
 - [x] Ya existe el controlador getCurrentUser.
-- [~] La ruta esta declarada como /users/me dentro de routes/users.js, pero ese router se monta en /users, asi que la ruta real queda como /users/users/me.
-- [~] El mismo error de prefijo afecta tambien a GET /users/:id, PATCH /users/me y PATCH /users/me/avatar, que hoy se convierten en /users/users/:id, /users/users/me y /users/users/me/avatar.
-- [~] El frontend espera GET /users/me y PATCH /users/me/avatar, por lo que hoy hay incompatibilidades reales de rutas.
+- [x] El router de usuarios ya usa /me, /:id y /me/avatar, por lo que las rutas reales quedan como /users/me, /users/:id y /users/me/avatar.
+- [x] El frontend ya puede apuntar a GET /users/me y PATCH /users/me/avatar sin el prefijo duplicado.
 
-Resultado actual: parcial.
+Resultado actual: completado.
 
-Paso siguiente: corregir el router para usar /me, /:id y /me/avatar dentro de routes/users.js.
+Paso siguiente: validar params y bodies de estas rutas con celebrate para evitar ids o payloads invalidos.
 
 ### 7. Proteger la API con una autorizacion
 
 - [x] app.js ya protege las rutas de /users y /cards usando el middleware auth.
 - [x] /signin y /signup quedan fuera de la proteccion.
-- [~] El comportamiento de error todavia no esta completamente alineado con el requisito, porque mezcla 401 y 403 segun el caso.
+- [x] Las rutas protegidas ya distinguen entre 401 cuando faltan credenciales y 403 cuando el token no autoriza el acceso.
 
-Resultado actual: parcial.
+Resultado actual: completado.
 
-Paso siguiente: normalizar la respuesta de acceso no autorizado y dejar clara la diferencia entre token ausente, token invalido y falta de permisos sobre recursos.
+Paso siguiente: mantener consistente esta distincion tambien en futuros middlewares y errores de permisos sobre recursos.
 
 ### 8. Eliminar el objeto de usuario hardcoded
 
@@ -113,14 +113,16 @@ Resultado actual: completado.
 - [x] El frontend ya guarda el token en localStorage.
 - [x] El frontend ya intenta validar el token al cargar la aplicacion.
 - [x] El frontend ya envia Authorization: Bearer <token> en las solicitudes protegidas.
-- [~] El flujo todavia depende de que el backend exponga correctamente GET /users/me y PATCH /users/me/avatar.
+- [x] El backend ya expone correctamente GET /users/me y PATCH /users/me/avatar.
 - [~] Hay otra incompatibilidad de datos: Card.jsx usa card.isLiked, pero el backend devuelve likes y no genera isLiked.
-- [~] La URL base del frontend apunta a http://localhost:3000.
-- [~] Vite tambien esta configurado para correr en el puerto 3000, lo que entra en conflicto con el backend durante el desarrollo local.
+- [~] La URL base del frontend sigue fija en http://localhost:3000, por lo que falta prepararla para despliegue y para configuracion por entorno.
+- [x] El frontend ya corre en el puerto 4000, asi que el conflicto local con el backend en el puerto 3000 ya quedo resuelto.
+- [x] App.jsx ahora deriva isLiked comparando card.likes.includes(currentUser._id), por lo que el boton de like refleja correctamente si el usuario autenticado ya dio like o no.
+- [~] La URL base del frontend sigue fija en http://localhost:3000, por lo que falta prepararla para despliegue y para configuracion por entorno.
 
 Resultado actual: parcial.
 
-Paso siguiente: corregir las rutas /users del backend, adaptar el formato de tarjetas para likes y separar la URL y el puerto de la API por entorno.
+Paso siguiente: parametrizar la URL de la API por entorno usando import.meta.env.VITE_API_URL.
 
 ## Parte II. Configuracion y despliegue
 
@@ -148,7 +150,7 @@ Paso siguiente: agregar celebrate, definir esquemas para auth, users y cards, y 
 
 - [ ] No existe configuracion de logs request.log ni error.log.
 - [ ] No hay logging en formato JSON.
-- [~] frontend/.gitignore ya ignora archivos .log, pero no existe un .gitignore raiz que cubra de forma clara los logs del backend.
+- [x] backend/.gitignore y frontend/.gitignore ya ignoran archivos .log.
 
 Resultado actual: parcial.
 
@@ -159,11 +161,11 @@ Paso siguiente: integrar un logger de solicitudes y errores, preferiblemente con
 - [x] El repositorio ya tiene las carpetas backend/ y frontend/ en la raiz.
 - [x] El directorio .git esta en la raiz del proyecto.
 - [~] A nivel de codigo todavia no esta resuelta la conexion final para despliegue: el frontend apunta a localhost y no hay configuracion de build publicada en servidor dentro del proyecto.
-- [~] En desarrollo local hay conflicto de puertos porque el backend usa PORT=3000 por defecto y Vite tambien corre en 3000.
+- [x] En desarrollo local ya no hay conflicto de puertos: el backend usa 3000 y Vite esta configurado en 4000.
 
 Resultado actual: parcial.
 
-Paso siguiente: separar puertos de desarrollo, preparar la URL del backend por entorno, construir el frontend y documentar el flujo de despliegue.
+Paso siguiente: preparar la URL del backend por entorno, construir el frontend y documentar el flujo de despliegue.
 
 ### 5. Crear un servidor en la nube y desplegar la API
 
@@ -177,10 +179,10 @@ Paso siguiente: crear la instancia, instalar Node.js, MongoDB o la conexion remo
 ### 6. Asegurate de que tu pagina web es totalmente funcional
 
 - [~] El codigo incluye registro, login, perfil, avatar, tarjetas y likes.
-- [~] La integracion completa todavia no esta cerrada por incompatibilidades entre frontend y backend.
-- [~] El perfil y el avatar fallaran mientras el backend mantenga rutas con prefijo duplicado /users/users/.
-- [~] El flujo de likes no esta alineado con el frontend porque Card.jsx depende de isLiked y el backend devuelve likes.
-- [ ] No esta habilitado cors en app.js.
+- [~] La integracion completa todavia no esta cerrada porque la URL de la API sigue apuntando a localhost.
+- [x] Las rutas de perfil y avatar ya quedaron alineadas como /users/me y /users/me/avatar.
+- [x] El flujo de likes ya esta alineado: App.jsx deriva isLiked desde card.likes.includes(currentUser._id) y el backend guarda los likes como array de ObjectIds con $addToSet y $pull.
+- [x] cors ya esta habilitado en app.js.
 - [ ] No hay evidencia de que todas las solicitudes antiguas hayan sido eliminadas como parte de una verificacion final de despliegue.
 
 Resultado actual: parcial.
@@ -246,4 +248,4 @@ Paso siguiente: cuando el despliegue este listo, agregar el dominio del frontend
 
 ## Resumen rapido
 
-Lo ya completado de forma solida es el esquema base de autenticacion, el hash de contrasenas, la proteccion general de rutas, la restriccion de permisos de usuario y el ocultamiento del hash de password. Lo mas urgente que falta dentro del codigo actual es corregir las rutas /users mal prefijadas, separar los puertos de desarrollo entre frontend y backend, agregar fallback seguro para JWT en desarrollo, alinear el formato de likes con el frontend, y despues montar validacion, errores, logs y despliegue.
+Lo ya completado de forma solida es el esquema base de autenticacion, el hash de contrasenas, la proteccion general de rutas, la restriccion de permisos de usuario, el ocultamiento del hash de password, la habilitacion de CORS, la separacion de puertos entre frontend y backend, la clave JWT por defecto para desarrollo, las rutas reales /users/me del router de usuarios y la logica de likes con isLiked derivado del array de usuarios que dieron like. Lo mas urgente que falta dentro del codigo actual es parametrizar la URL de la API por entorno, y despues montar validacion, errores, logs y despliegue.
