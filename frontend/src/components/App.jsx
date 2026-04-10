@@ -11,6 +11,8 @@ import SignUp from "./Register/Register.jsx";
 import ProtectedRoute from "./ProtectedRoute/ProtectedRoute.jsx";
 import CurrentUserContext from "../contexts/CurrentUserContext.js";
 
+const withIsLiked = (card, userId) => ({ ...card, isLiked: card.likes.includes(userId) });
+
 function App() {
   const [currentUser, setCurrentUser] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -30,7 +32,7 @@ function App() {
         })
         .then(([userInfo, initialCards]) => {
           setCurrentUser(userInfo);
-          setCards(initialCards);
+          setCards(initialCards.map((card) => withIsLiked(card, userInfo._id)));
         })
         .catch((err) => {
           console.error("Sesión inválida:", err);
@@ -71,7 +73,7 @@ function App() {
       .then((newCard) => {
         setCards((state) =>
           state.map((currentCard) =>
-            currentCard._id === card._id ? newCard : currentCard,
+            currentCard._id === card._id ? withIsLiked(newCard, currentUser._id) : currentCard,
           ),
         );
       })
@@ -93,7 +95,7 @@ function App() {
     api
       .addNewCard(data)
       .then((newCard) => {
-        setCards([newCard, ...cards]);
+        setCards([withIsLiked(newCard, currentUser._id), ...cards]);
       })
       .catch((err) => {
         console.error("Error adding new card:", err);
@@ -120,7 +122,7 @@ function App() {
       api.getInitialCards(),
     ]);
     setCurrentUser(userInfo);
-    setCards(initialCards);
+    setCards(initialCards.map((card) => withIsLiked(card, userInfo._id)));
     setIsLoggedIn(true);
   }
 
