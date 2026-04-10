@@ -10,7 +10,7 @@ Guia paso a paso para completar el proyecto, siguiendo el orden exacto de los re
 
 ## Estado general auditado
 
-El repositorio ya tiene separadas las carpetas backend/ y frontend/, existe autenticacion base con JWT, el modelo de usuario ya incluye email y password, el frontend ya implementa registro, login y consumo de rutas protegidas con token en los headers, y CORS ya esta habilitado en el backend. Aun faltan validaciones de entrada, manejo centralizado de errores, registro real de solicitudes y errores, configuracion de produccion, correccion de rutas protegidas del backend y despliegue.
+El repositorio ya tiene separadas las carpetas backend/ y frontend/, existe autenticacion base con JWT, el modelo de usuario ya incluye email y password, el frontend ya implementa registro, login y consumo de rutas protegidas con token en los headers, CORS ya esta habilitado en el backend, y ya existe validacion de solicitudes con celebrate/Joi junto con middleware centralizado de errores. Aun faltan registro real de solicitudes y errores, configuracion de produccion, despliegue y documentacion de infraestructura.
 
 ## Parte I. Autorizacion y registro de usuarios
 
@@ -126,23 +126,23 @@ Paso siguiente: crear valores por entorno (desarrollo/produccion) para VITE_API_
 
 ### 1. Implementar el manejo centralizado de errores
 
-- [ ] No existe un middleware centralizado de errores en app.js.
-- [ ] Los controladores siguen devolviendo respuestas directamente dentro de catch.
-- [ ] No esta configurada la regla no-unused-vars para ignorar next en el middleware de errores.
+- [x] Ya existe un middleware centralizado de errores en app.js (errorHandler).
+- [x] Los controladores principales ya propagan errores con next(err) para que se resuelvan en un solo punto.
+- [~] No esta configurada la regla no-unused-vars para ignorar next en el middleware de errores.
 
-Resultado actual: pendiente.
+Resultado actual: parcial.
 
-Paso siguiente: crear middleware de errores, propagar errores con next(err) y actualizar .eslintrc.
+Paso siguiente: ajustar .eslintrc para contemplar next y revisar que no queden controladores respondiendo errores fuera del middleware central.
 
 ### 2. Validar solicitudes
 
-- [ ] No se esta usando celebrate.
-- [ ] No se esta usando Joi para validar body, params o headers.
-- [ ] No existe una utilidad central para validar URL con validator.isURL en las solicitudes de entrada.
+- [x] Ya se esta usando celebrate.
+- [x] Ya se esta usando Joi para validar body y params en auth, users y cards.
+- [~] Existe utilidad central de validacion en backend/utils/validators.js, aunque las URL se validan con Joi.uri y no con validator.isURL.
 
-Resultado actual: pendiente.
+Resultado actual: completado.
 
-Paso siguiente: agregar celebrate, definir esquemas para auth, users y cards, y validar cuerpos, parametros e ids.
+Paso siguiente: ampliar esquemas cuando se agreguen nuevas rutas o headers especificos.
 
 ### 3. Implementar el registro de solicitudes y errores
 
@@ -177,7 +177,7 @@ Paso siguiente: crear la instancia, instalar Node.js, MongoDB o la conexion remo
 ### 6. Asegurate de que tu pagina web es totalmente funcional
 
 - [~] El codigo incluye registro, login, perfil, avatar, tarjetas y likes.
-- [~] La integracion completa todavia no esta cerrada porque la URL de la API sigue apuntando a localhost.
+- [~] La integracion completa todavia no esta cerrada por tareas de despliegue y pruebas finales en entorno publicado.
 - [x] Las rutas de perfil y avatar ya quedaron alineadas como /users/me y /users/me/avatar.
 - [x] El flujo de likes ya esta alineado: App.jsx deriva isLiked desde card.likes.includes(currentUser._id) y el backend guarda los likes como array de ObjectIds con $addToSet y $pull.
 - [x] cors ya esta habilitado en app.js.
@@ -185,7 +185,7 @@ Paso siguiente: crear la instancia, instalar Node.js, MongoDB o la conexion remo
 
 Resultado actual: parcial.
 
-Paso siguiente: habilitar CORS, corregir incompatibilidades de datos y probar el flujo completo desde el frontend publicado.
+Paso siguiente: ejecutar pruebas end-to-end en el frontend publicado y cerrar checklist de solicitudes legacy.
 
 ### 7. Crear el archivo .env
 
@@ -236,16 +236,14 @@ Paso siguiente: cuando el despliegue este listo, agregar el dominio del frontend
 
 1. Corregir rutas y autenticacion base del backend.
 2. Cerrar la compatibilidad real entre frontend y backend.
-3. Implementar manejo centralizado de errores.
-4. Implementar validacion con celebrate y Joi.
-5. Agregar logs de solicitudes y errores.
+3. Agregar logs de solicitudes y errores.
+4. Preparar configuracion por entorno con .env para produccion.
+5. Desplegar backend y frontend en servidor.
 6. Habilitar CORS.
-7. Preparar configuracion por entorno con .env para produccion.
-8. Desplegar backend y frontend en servidor.
-9. Configurar dominio, nginx y HTTPS.
-10. Levantar el proceso con PM2 y probar /crash-test.
-11. Actualizar este README con el dominio final.
+7. Configurar dominio, nginx y HTTPS.
+8. Levantar el proceso con PM2 y probar /crash-test.
+9. Actualizar este README con el dominio final.
 
 ## Resumen rapido
 
-Lo ya completado de forma solida es el esquema base de autenticacion, el hash de contrasenas, la proteccion general de rutas, la restriccion de permisos de usuario, el ocultamiento del hash de password, la habilitacion de CORS, la separacion de puertos entre frontend y backend, la carga de JWT_SECRET por .env con dotenv, las rutas reales /users/me del router de usuarios, la URL de API parametrizada por entorno en el frontend y la logica de likes con isLiked derivado del array de usuarios que dieron like. Lo mas urgente que falta dentro del codigo actual es montar validacion, errores, logs y despliegue.
+Lo ya completado de forma solida es el esquema base de autenticacion, el hash de contrasenas, la proteccion general de rutas, la restriccion de permisos de usuario, el ocultamiento del hash de password, la habilitacion de CORS, la separacion de puertos entre frontend y backend, la carga de JWT_SECRET por .env con dotenv, las rutas reales /users/me del router de usuarios, la URL de API parametrizada por entorno en el frontend, la logica de likes con isLiked derivado del array de usuarios que dieron like, el middleware centralizado de errores y la validacion de rutas con celebrate/Joi. Lo mas urgente que falta dentro del codigo actual es agregar logging estructurado, cerrar despliegue e infraestructura de produccion y documentar el acceso final.
