@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-
-const { JWT_SECRET } = process.env;
+const { getJwtSecret } = require('../utils/jwt');
 
 module.exports.auth = (req, res, next) => {
   const { authorization } = req.headers;
@@ -11,10 +10,14 @@ module.exports.auth = (req, res, next) => {
 
   const token = authorization.replace('Bearer ', '');
 
+  if (!token) {
+    return res.status(401).send({ message: 'Autorización requerida' });
+  }
+
   let payload;
 
   try {
-    payload = jwt.verify(token, JWT_SECRET);
+    payload = jwt.verify(token, getJwtSecret());
   } catch (err) {
     return res.status(403).send({ message: 'Acceso prohibido' });
   }
