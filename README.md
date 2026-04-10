@@ -40,11 +40,11 @@ Resultado actual: completado.
 - [x] El JWT ya incluye solo la propiedad _id.
 - [x] El token ya expira en 7 dias.
 - [x] Si las credenciales fallan, ya responde con 401.
-- [x] En desarrollo ya existe una clave secreta por defecto cuando process.env.NODE_ENV !== 'production'.
+- [x] El backend ya carga variables de entorno con dotenv y usa JWT_SECRET desde .env.
 
 Resultado actual: completado.
 
-Paso siguiente: mantener JWT_SECRET obligatorio en produccion y moverlo a .env en el servidor.
+Paso siguiente: mantener JWT_SECRET distinto por entorno y no versionar archivos .env.
 
 ### 4. Crear una ruta para el inicio de sesion y el registro
 
@@ -62,7 +62,7 @@ Paso siguiente: mantener estas dos rutas publicas fuera del router protegido y v
 - [x] Cuando el token es valido, asigna req.user = payload y llama a next().
 - [x] Cuando falta el header Authorization o el token esta mal formado, el middleware responde con 401.
 - [x] El middleware base ya gestiona el rechazo de accesos no autenticados.
-- [x] El middleware ya usa la misma clave por defecto de desarrollo cuando process.env.NODE_ENV !== 'production'.
+- [x] El middleware valida el token con JWT_SECRET obtenido desde variables de entorno.
 
 Resultado actual: completado.
 
@@ -114,15 +114,13 @@ Resultado actual: completado.
 - [x] El frontend ya intenta validar el token al cargar la aplicacion.
 - [x] El frontend ya envia Authorization: Bearer <token> en las solicitudes protegidas.
 - [x] El backend ya expone correctamente GET /users/me y PATCH /users/me/avatar.
-- [~] Hay otra incompatibilidad de datos: Card.jsx usa card.isLiked, pero el backend devuelve likes y no genera isLiked.
-- [~] La URL base del frontend sigue fija en http://localhost:3000, por lo que falta prepararla para despliegue y para configuracion por entorno.
 - [x] El frontend ya corre en el puerto 4000, asi que el conflicto local con el backend en el puerto 3000 ya quedo resuelto.
 - [x] App.jsx ahora deriva isLiked comparando card.likes.includes(currentUser._id), por lo que el boton de like refleja correctamente si el usuario autenticado ya dio like o no.
-- [~] La URL base del frontend sigue fija en http://localhost:3000, por lo que falta prepararla para despliegue y para configuracion por entorno.
+- [x] La URL base del frontend ya fue parametrizada con import.meta.env.VITE_API_URL en api.jsx y auth.jsx.
 
-Resultado actual: parcial.
+Resultado actual: completado.
 
-Paso siguiente: parametrizar la URL de la API por entorno usando import.meta.env.VITE_API_URL.
+Paso siguiente: crear valores por entorno (desarrollo/produccion) para VITE_API_URL antes del despliegue.
 
 ## Parte II. Configuracion y despliegue
 
@@ -160,12 +158,12 @@ Paso siguiente: integrar un logger de solicitudes y errores, preferiblemente con
 
 - [x] El repositorio ya tiene las carpetas backend/ y frontend/ en la raiz.
 - [x] El directorio .git esta en la raiz del proyecto.
-- [~] A nivel de codigo todavia no esta resuelta la conexion final para despliegue: el frontend apunta a localhost y no hay configuracion de build publicada en servidor dentro del proyecto.
+- [x] A nivel de codigo, la URL del backend ya esta parametrizada por entorno con VITE_API_URL (ya no queda hardcodeada en localhost dentro de api.jsx y auth.jsx).
 - [x] En desarrollo local ya no hay conflicto de puertos: el backend usa 3000 y Vite esta configurado en 4000.
 
 Resultado actual: parcial.
 
-Paso siguiente: preparar la URL del backend por entorno, construir el frontend y documentar el flujo de despliegue.
+Paso siguiente: construir el frontend para produccion y documentar el flujo de despliegue en servidor.
 
 ### 5. Crear un servidor en la nube y desplegar la API
 
@@ -191,12 +189,14 @@ Paso siguiente: habilitar CORS, corregir incompatibilidades de datos y probar el
 
 ### 7. Crear el archivo .env
 
-- [ ] No hay manejo documentado de .env para produccion.
-- [ ] El codigo actual no tiene fallback de desarrollo para JWT cuando no existe .env.
+- [x] Ya existe backend/.env con JWT_SECRET y NODE_ENV para desarrollo.
+- [x] app.js ya carga variables de entorno usando dotenv.
+- [x] backend/.gitignore y frontend/.gitignore ya excluyen archivos .env.
+- [~] Falta definir y documentar la estrategia de variables para produccion (por ejemplo, variables del servidor o .env.production segun entorno).
 
-Resultado actual: pendiente.
+Resultado actual: parcial.
 
-Paso siguiente: usar process.env.JWT_SECRET en produccion y una clave fija de desarrollo fuera de produccion.
+Paso siguiente: definir variables reales de produccion en el servidor y documentarlas sin exponer secretos.
 
 ### 8. Crear un dominio y vincularlo al servidor
 
@@ -248,4 +248,4 @@ Paso siguiente: cuando el despliegue este listo, agregar el dominio del frontend
 
 ## Resumen rapido
 
-Lo ya completado de forma solida es el esquema base de autenticacion, el hash de contrasenas, la proteccion general de rutas, la restriccion de permisos de usuario, el ocultamiento del hash de password, la habilitacion de CORS, la separacion de puertos entre frontend y backend, la clave JWT por defecto para desarrollo, las rutas reales /users/me del router de usuarios y la logica de likes con isLiked derivado del array de usuarios que dieron like. Lo mas urgente que falta dentro del codigo actual es parametrizar la URL de la API por entorno, y despues montar validacion, errores, logs y despliegue.
+Lo ya completado de forma solida es el esquema base de autenticacion, el hash de contrasenas, la proteccion general de rutas, la restriccion de permisos de usuario, el ocultamiento del hash de password, la habilitacion de CORS, la separacion de puertos entre frontend y backend, la carga de JWT_SECRET por .env con dotenv, las rutas reales /users/me del router de usuarios, la URL de API parametrizada por entorno en el frontend y la logica de likes con isLiked derivado del array de usuarios que dieron like. Lo mas urgente que falta dentro del codigo actual es montar validacion, errores, logs y despliegue.
