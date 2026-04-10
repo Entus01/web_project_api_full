@@ -1,9 +1,12 @@
 const express = require("express");
+const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 const mongoose = require("mongoose");
 const { PORT = 3000 } = process.env;
 const app = express();
+
+app.use(cors());
 const { login, createUser } = require("./controllers/users");
 const auth = require("./middlewares/auth");
 
