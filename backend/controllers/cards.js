@@ -1,111 +1,75 @@
 const Card = require("../models/card");
+const User = require("../models/user");
 
-module.exports.getCards = (req, res) => {
-  const { id } = req.params;
-  Card.find(id ? { _id: id } : {})
-    .orFail(() => {
-      const error = new Error("No se encontraron tarjetas");
-      error.statusCode = 404;
-      throw error;
-    })
-    .then((cards) => {
-      if (!cards || cards.length === 0) {
-        return res.status(404).json({ message: "No se encontraron tarjetas" });
-      }
-      res.status(200).json(cards);
-    })
-    .catch((err) =>
-      res.status(500).json({ message: "Error al obtener las tarjetas" }),
-    );
+const createError = (statusCode, message) => {
+  const err = new Error(message);
+  err.statusCode = statusCode;
+  return err;
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.getCards = (req, res, next) => {
+  const { id } = req.params;
+  Card.find(id ? { _id: id } : {})
+    .then((cards) => {
+      if (!cards || cards.length === 0) {
+        throw createError(404, "No se encontraron tarjetas");
+      }
+      return res.status(200).json(cards);
+    })
+    .catch(next);
+};
+
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
-  const User = require("../models/user");
+  if (!name || !link || !owner) {
+    return next(createError(400, "Faltan campos requeridos"));
+  }
+
   User.findById(owner)
+    .orFail(() => createError(404, "Usuario no encontrado"))
     .then((user) => {
       if (!user) {
-        return res.status(404).json({ message: "Usuario no encontrado" });
-      } else if (!name || !link || !owner) {
-        return res.status(400).json({ message: "Faltan campos requeridos" });
+        throw createError(404, "Usuario no encontrado");
       }
-      Card.create({ name, link, owner })
-        .then((card) => res.status(201).json(card))
-        .catch((err) =>
-          res.status(500).json({ message: "Error al crear la tarjeta" }),
-        );
+      return Card.create({ name, link, owner });
     })
-    .catch((err) =>
-      res.status(500).json({ message: "Error al buscar el usuario" }),
-    );
+    .then((card) => res.status(201).json(card))
+    .catch(next);
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   const { id } = req.params;
   Card.findById(id)
-    .orFail(() => {
-      const error = new Error("Tarjeta no encontrada");
-      error.statusCode = 404;
-      throw error;
-    })
+    .orFail(() => createError(404, "Tarjeta no encontrada"))
     .then((card) => {
-      if (!card) {
-        return res.status(404).json({ message: "Tarjeta no encontrada" });
-      }
       if (card.owner.toString() !== req.user._id) {
-        return res
-          .status(403)
-          .json({ message: "No tienes permiso para eliminar esta tarjeta" });
+        throw createError(403, "No tienes permiso para eliminar esta tarjeta");
       }
       return Card.findByIdAndDelete(id).then(() =>
         res.status(200).json({ message: "Tarjeta eliminada" }),
       );
     })
-    .catch((err) =>
-      res.status(500).json({ message: "Error al eliminar la tarjeta" }),
-    );
+    .catch(next);
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   const { id } = req.params;
   Card.findByIdAndUpdate(
     id,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => {
-      const error = new Error("Tarjeta no encontrada");
-      error.statusCode = 404;
-      throw error;
-    })
-    .then((card) => {
-      if (!card) {
-        return res.status(404).json({ message: "Tarjeta no encontrada" });
-      }
-      res.status(200).json(card);
-    })
-    .catch((err) =>
-      res.status(500).json({ message: "Error al dar like a la tarjeta" }),
-    );
+    .orFail(() => createError(404, "Tarjeta no encontrada"))
+    .then((card) => res.status(200).json(card))
+    .catch(next);
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   const { id } = req.params;
   Card.findByIdAndUpdate(id, { $pull: { likes: req.user._id } }, { new: true })
-    .orFail(() => {
-      const error = new Error("Tarjeta no encontrada");
-      error.statusCode = 404;
-      throw error;
-    })
-    .then((card) => {
-      if (!card) {
-        return res.status(404).json({ message: "Tarjeta no encontrada" });
-      }
-      res.status(200).json(card);
-    })
-    .catch((err) =>
-      res.status(500).json({ message: "Error al quitar like a la tarjeta" }),
-    );
+    .orFail(() => createError(404, "Tarjeta no encontrada"))
+    .then((card) => res.status(200).json(card))
+    .catch(next);
 };

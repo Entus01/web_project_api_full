@@ -3,104 +3,76 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { getJwtSecret } = require("../utils/jwt");
 
-module.exports.getUsers = (req, res) => {
-  User.find({})
-    .orFail(() => {
-      const error = new Error("No se encontraron usuarios");
-      error.statusCode = 404;
-      throw error;
-    })
-    .then((users) => res.status(200).json(users))
-    .catch((err) =>
-      res.status(err.statusCode || 500).json({ message: err.message }),
-    );
+const createError = (statusCode, message) => {
+  const err = new Error(message);
+  err.statusCode = statusCode;
+  return err;
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
+  User.find({})
+    .then((users) => res.status(200).json(users))
+    .catch(next);
+};
+
+module.exports.getUserById = (req, res, next) => {
   const { id } = req.params;
   User.findById(id)
-    .orFail(() => {
-      const error = new Error("Usuario no encontrado");
-      error.statusCode = 404;
-      throw error;
-    })
-    .then((user) => {
-      if (!user) {
-        return res.status(404).json({ message: "Usuario no encontrado" });
-      }
-      res.status(200).json(user);
-    })
-    .catch((err) =>
-      res.status(err.statusCode || 500).json({ message: err.message }),
-    );
+    .orFail(() => createError(404, "Usuario no encontrado"))
+    .then((user) => res.status(200).json(user))
+    .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
+
+  if (!password) {
+    return next(createError(400, "Falta la contrasena"));
+  }
+
   bcrypt.hash(password, 10)
     .then((hash) => User.create({ name, about, avatar, email, password: hash }))
     .then((user) => res.status(201).json(user))
-    .catch((err) =>
-      res.status(err.statusCode || 500).json({ message: err.message }),
-    );
+    .catch(next);
 };
 
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .then((user) => {
-      if (!user) {
-        return res.status(404).json({ message: "Usuario no encontrado" });
-      }
-      res.status(200).json(user);
-    })
-    .catch((err) =>
-      res.status(err.statusCode || 500).json({ message: err.message }),
-    );
+    .orFail(() => createError(404, "Usuario no encontrado"))
+    .then((user) => res.status(200).json(user))
+    .catch(next);
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .then((user) => {
-      if (!user) {
-        return res.status(404).json({ message: "Usuario no encontrado" });
-      }
-      res.status(200).json(user);
-    })
-    .catch((err) =>
-      res.status(err.statusCode || 500).json({ message: err.message }),
-    );
+    .orFail(() => createError(404, "Usuario no encontrado"))
+    .then((user) => res.status(200).json(user))
+    .catch(next);
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  const jwtSecret = getJwtSecret();
-  if (!jwtSecret) {
-    return res.status(500).json({ message: "Error de configuración del servidor" });
+  let jwtSecret;
+
+  try {
+    jwtSecret = getJwtSecret();
+  } catch (err) {
+    return next(err);
   }
+
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, jwtSecret, { expiresIn: "7d" });
       return res.status(200).json({ token });
     })
-    .catch((err) => {
-      if (err.statusCode === 401) {
-        return res.status(401).json({ message: err.message });
-      }
-      return res.status(500).json({ message: "Error del servidor" });
-    });
+    .catch(next);
 };
 
-module.exports.getCurrentUser = (req, res) => {
+module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(() => {
-      const error = new Error("Usuario no encontrado");
-      error.statusCode = 404;
-      throw error;
-    })
+    .orFail(() => createError(404, "Usuario no encontrado"))
     .then((user) => res.status(200).json(user))
-    .catch((err) =>
-      res.status(err.statusCode || 500).json({ message: err.message }),
-    );
+    .catch(next);
 };

@@ -10,13 +10,15 @@ const app = express();
 app.use(cors());
 const { login, createUser } = require("./controllers/users");
 const auth = require("./middlewares/auth");
+const { errorHandler } = require("./middlewares/error");
+const { validateSignIn, validateSignUp } = require("./utils/validators");
 
 app.use(express.json());
 
 mongoose.connect("mongodb://localhost:27017/aroundb");
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', validateSignIn, login);
+app.post('/signup', validateSignUp, createUser);
 
 app.use(auth.auth);
 
@@ -26,9 +28,13 @@ const cardsRouter = require("./routes/cards");
 app.use("/users", usersRouter);
 app.use("/cards", cardsRouter);
 
-app.use((req, res) => {
-  res.status(404).json({ message: "Recurso solicitado no encontrado" });
+app.use((req, res, next) => {
+  const err = new Error("Recurso solicitado no encontrado");
+  err.statusCode = 404;
+  next(err);
 });
+
+app.use(errorHandler);
 
 fs.readFile(
   path.join(__dirname, "data", "users.json"),
