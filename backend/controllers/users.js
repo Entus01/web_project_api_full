@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { getJwtSecret } = require("../utils/jwt");
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -74,13 +75,13 @@ module.exports.updateAvatar = (req, res) => {
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
-  const { JWT_SECRET } = process.env;
-  if (!JWT_SECRET) {
+  const jwtSecret = getJwtSecret();
+  if (!jwtSecret) {
     return res.status(500).json({ message: "Error de configuración del servidor" });
   }
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
+      const token = jwt.sign({ _id: user._id }, jwtSecret, { expiresIn: "7d" });
       return res.status(200).json({ token });
     })
     .catch((err) => {
