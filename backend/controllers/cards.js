@@ -10,12 +10,7 @@ const createError = (statusCode, message) => {
 module.exports.getCards = (req, res, next) => {
   const { id } = req.params;
   Card.find(id ? { _id: id } : {})
-    .then((cards) => {
-      if (!cards || cards.length === 0) {
-        throw createError(404, "No se encontraron tarjetas");
-      }
-      return res.status(200).json(cards);
-    })
+    .then((cards) => res.status(200).json(cards))
     .catch(next);
 };
 
