@@ -1,7 +1,8 @@
-const { NODE_ENV, JWT_SECRET } = process.env;
+const { JWT_SECRET } = process.env;
 
-const DEFAULT_JWT_SECRET = 'dev-secret';
-
-module.exports.getJwtSecret = () => (
-  NODE_ENV === 'production' ? JWT_SECRET : DEFAULT_JWT_SECRET
-);
+module.exports.getJwtSecret = () => {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined. Add it to your .env file.');
+  }
+  return JWT_SECRET;
+};
