@@ -10,7 +10,15 @@ Guia paso a paso para completar el proyecto, siguiendo el orden exacto de los re
 
 ## Estado general auditado
 
-El repositorio ya tiene separadas las carpetas backend/ y frontend/, existe autenticacion base con JWT, el modelo de usuario ya incluye email y password, el frontend ya implementa registro, login y consumo de rutas protegidas con token en los headers, CORS ya esta habilitado en el backend, y ya existe validacion de solicitudes con celebrate/Joi junto con middleware centralizado de errores. Aun faltan registro real de solicitudes y errores, configuracion de produccion, despliegue y documentacion de infraestructura.
+El repositorio ya tiene separadas las carpetas backend/ y frontend/, existe autenticacion base con JWT, el modelo de usuario ya incluye email y password, el frontend ya implementa registro, login y consumo de rutas protegidas con token en los headers, CORS ya esta habilitado en el backend, y ya existe validacion de solicitudes con celebrate/Joi y validator.isURL junto con middleware centralizado de errores. Tambien ya existe integracion de logging de solicitudes y errores en app.js con middlewares dedicados y dependencias instaladas. Aun faltan configuracion de produccion, despliegue y documentacion de infraestructura.
+
+## Pasos completados (auditado al 2026-04-10)
+
+- [x] Parte I completa: pasos 1 al 11 cerrados.
+- [x] Parte II paso 1 (manejo centralizado de errores) cerrado.
+- [x] Parte II paso 2 (validacion de solicitudes) cerrado, incluyendo validacion de URL con validator.isURL.
+- [x] Parte II paso 3 (registro de solicitudes y errores) cerrado.
+- [x] Integracion funcional local frontend-backend operativa con puertos separados y URL de API parametrizada por entorno.
 
 ## Parte I. Autorizacion y registro de usuarios
 
@@ -140,7 +148,8 @@ Paso siguiente: verificar que no quede ninguna respuesta de error directa fuera 
 
 - [x] Ya se esta usando celebrate.
 - [x] Ya se esta usando Joi para validar body y params en auth, users y cards.
-- [~] Existe utilidad central de validacion en backend/utils/validators.js, aunque las URL se validan con Joi.uri y no con validator.isURL.
+- [x] Existe utilidad central de validacion en backend/utils/validators.js.
+- [x] Las URL ya se validan con validator.isURL (http/https y protocolo requerido) en avatar y link.
 
 Resultado actual: completado.
 
@@ -148,13 +157,16 @@ Paso siguiente: ampliar esquemas cuando se agreguen nuevas rutas o headers espec
 
 ### 3. Implementar el registro de solicitudes y errores
 
-- [ ] No existe configuracion de logs request.log ni error.log.
-- [ ] No hay logging en formato JSON.
+- [x] Ya existe middleware de logging en backend/middlewares/logger.js.
+- [x] app.js ya integra requestLogger y errorLogger en el flujo de middlewares.
+- [x] Ya estan definidos archivos de salida para logs en logs/requests.log y logs/errors.log.
+- [x] El logger define salida JSON con timestamp para archivos de logs.
+- [x] Las dependencias de logging (winston y express-winston) ya estan declaradas en backend/package.json.
 - [x] backend/.gitignore y frontend/.gitignore ya ignoran archivos .log.
 
-Resultado actual: parcial.
+Resultado actual: completado.
 
-Paso siguiente: integrar un logger de solicitudes y errores, preferiblemente con winston y express-winston, y excluir los archivos de log del repositorio.
+Paso siguiente: monitorear crecimiento de archivos de log y definir rotacion en produccion.
 
 ### 4. Conectar el back-end y el front-end de la aplicacion
 
@@ -248,4 +260,4 @@ Paso siguiente: cuando el despliegue este listo, agregar el dominio del frontend
 
 ## Resumen rapido
 
-Lo ya completado de forma solida es el esquema base de autenticacion, el hash de contrasenas, la proteccion general de rutas, la restriccion de permisos de usuario, el ocultamiento del hash de password, la habilitacion de CORS, la separacion de puertos entre frontend y backend, la carga de JWT_SECRET por .env con dotenv, las rutas reales /users/me del router de usuarios, la URL de API parametrizada por entorno en el frontend, la logica de likes con isLiked derivado del array de usuarios que dieron like, el middleware centralizado de errores y la validacion de rutas con celebrate/Joi. Lo mas urgente que falta dentro del codigo actual es agregar logging estructurado, cerrar despliegue e infraestructura de produccion y documentar el acceso final.
+Lo ya completado de forma solida es el esquema base de autenticacion, el hash de contrasenas, la proteccion general de rutas, la restriccion de permisos de usuario, el ocultamiento del hash de password, la habilitacion de CORS, la separacion de puertos entre frontend y backend, la carga de JWT_SECRET por .env con dotenv, las rutas reales /users/me del router de usuarios, la URL de API parametrizada por entorno en el frontend, la logica de likes con isLiked derivado del array de usuarios que dieron like, el middleware centralizado de errores, la validacion de rutas con celebrate/Joi + validator.isURL y el registro de solicitudes/errores con middlewares y dependencias instaladas. Lo mas urgente que falta dentro del codigo actual es cerrar despliegue e infraestructura de produccion y documentar el acceso final.
