@@ -12,6 +12,9 @@ const { login, createUser } = require("./controllers/users");
 const auth = require("./middlewares/auth");
 const { errorHandler } = require("./middlewares/error");
 const { validateSignIn, validateSignUp } = require("./utils/validators");
+const { requestLogger, errorLogger } = require("./middlewares/logger");
+
+app.use(requestLogger);
 
 app.use(express.json());
 
@@ -34,6 +37,7 @@ app.use((req, res, next) => {
   next(err);
 });
 
+app.use(errorLogger);
 app.use(errorHandler);
 
 fs.readFile(
