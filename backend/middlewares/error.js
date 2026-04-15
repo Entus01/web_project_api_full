@@ -1,4 +1,4 @@
-const { isCelebrateError } = require('celebrate');
+const { isCelebrate } = require('celebrate');
 
 module.exports.errorHandler = (err, req, res, next) => {
   if (res.headersSent) {
@@ -7,7 +7,7 @@ module.exports.errorHandler = (err, req, res, next) => {
 
   const { statusCode = 500, message } = err;
 
-  if (isCelebrateError(err)) {
+  if (isCelebrate(err)) {
     return res.status(400).json({ message: 'Datos de entrada invalidos' });
   }
 
