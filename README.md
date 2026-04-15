@@ -12,7 +12,7 @@ Guia paso a paso para completar el proyecto, siguiendo el orden exacto de los re
 
 El repositorio ya tiene separadas las carpetas backend/ y frontend/, existe autenticacion base con JWT, el modelo de usuario ya incluye email y password, el frontend ya implementa registro, login y consumo de rutas protegidas con token en los headers, CORS ya esta habilitado en el backend, y ya existe validacion de solicitudes con celebrate/Joi y validator.isURL junto con middleware centralizado de errores. Tambien ya existe integracion de logging de solicitudes y errores en app.js con middlewares dedicados y dependencias instaladas. Aun faltan configuracion de produccion, despliegue y documentacion de infraestructura.
 
-## Pasos completados (auditado al 2026-04-10)
+## Pasos completados (auditado al 2026-04-14)
 
 - [x] Parte I completa: pasos 1 al 11 cerrados.
 - [x] Parte II paso 1 (manejo centralizado de errores) cerrado.
