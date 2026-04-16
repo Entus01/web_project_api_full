@@ -100,6 +100,11 @@ Puertos en desarrollo local:
 - Frontend (Vite): `http://localhost:4000`.
 - Backend (API): `http://localhost:3000`.
 
+## Acceso en produccion
+
+- Frontend: `https://www.codetester.twilightparadox.com`
+- API: `https://api.codetester.twilightparadox.com`
+
 ## Variables de entorno
 
 En backend se usan variables de entorno para seguridad y configuracion. Ejemplo minimo:
@@ -120,4 +125,4 @@ Nota: `VITE_API_URL` es la direccion de la API que consume el frontend, no el pu
 
 ## Estado actual
 
-El proyecto ya cubre autenticacion, autorizacion, gestion de perfil, tarjetas y likes con validacion y manejo de errores. El principal siguiente paso es cerrar infraestructura y despliegue de produccion.
+El proyecto ya cubre autenticacion, autorizacion, gestion de perfil, tarjetas y likes con validacion y manejo de errores. Actualmente tambien cuenta con despliegue accesible mediante dominio para el frontend y subdominio para la API. Los siguientes pasos naturales son reforzar seguridad, automatizar pruebas y mejorar la operacion en produccion.
