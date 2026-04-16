@@ -20,6 +20,12 @@ app.use(express.json());
 
 mongoose.connect("mongodb://localhost:27017/aroundb");
 
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('El servidor va a caer');
+  }, 0);
+});
+
 app.post('/signin', validateSignIn, login);
 app.post('/signup', validateSignUp, createUser);
 
